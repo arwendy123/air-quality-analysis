@@ -50,19 +50,22 @@ if selected_question == "1. Kualitas Udara Stasiun":
     st.write(station_stats)
 
 elif selected_question == "2. Tren Polusi Udara":
+    # Ensure 'datetime' column is datetime type
+    filtered_df['datetime'] = pd.to_datetime(filtered_df['datetime'])
+
     # Analisis Tren Harian
     st.subheader("Analisis Tren Harian Polusi Udara")
-    hourly_mean = filtered_df.groupby(filtered_df['datetime'].dt.hour)['PM2.5'].mean()
+    daily_mean = filtered_df.groupby(filtered_df['datetime'].dt.date)['PM2.5'].mean()
     plt.figure(figsize=(12, 6))
-    sns.lineplot(x=hourly_mean.index, y=hourly_mean.values)
+    sns.lineplot(x=daily_mean.index, y=daily_mean.values)
     plt.title('Tren Harian Polusi Udara')
-    plt.xlabel('Jam dalam Sehari')
+    plt.xlabel('Tanggal')
     plt.ylabel('Rata-rata PM2.5')
     st.pyplot(plt.gcf())
 
     # Analisis Tren Mingguan
     st.subheader("Analisis Tren Mingguan Polusi Udara")
-    weekly_mean = filtered_df.groupby(filtered_df['datetime'].dt.week)['PM2.5'].mean()
+    weekly_mean = filtered_df.groupby(filtered_df['datetime'].apply(lambda x: x.isocalendar()[1]))['PM2.5'].mean()
     plt.figure(figsize=(12, 6))
     sns.lineplot(x=weekly_mean.index, y=weekly_mean.values)
     plt.title('Tren Mingguan Polusi Udara')
